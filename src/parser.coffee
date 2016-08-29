@@ -6,11 +6,15 @@ console.log 'By F6CF and VITEK999'
 start=do (new Date).getTime
 
 headers=
-    #         CMD                ARGC ARG1 ARG2 ARG3  
+            # CMD                ARGC ARG1 ARG2 ARG3  
             #  FF   00   00   00   03   98   81   03
     ili_new:[0xFF,0x00,0x00,0x00,0x03,0x98,0x81,0x03]
             #  FF   00   00   00   05   FF   98   06   04   01
     ili_old:[0xFF,0x00,0x00,0x00,0x05,0xFF,0x98,0x06,0x04,0x01]
+            #  FF   00   00   00   03   80   09   01
+    otm_dfd:[0xFF,0x00,0x00,0x00,0x03,0x80,0x09,0x01]
+            #  C0   00   00   00   05   00   58   00   14   16
+    otm_f  :[0xC0,0x00,0x00,0x00,0x05,0x00,0x58,0x00,0x14,0x16]
 
 class FoundHeader 
     constructor: (@name,@offset,@hex)->
@@ -18,6 +22,7 @@ class FoundHeader
     getEnd: ->@offset+@hex.length-(@hex.length-8)
     
 toHex=(int)->
+    return undefined if int==undefined #Should never happen
     a=int.toString 16
     a="0"+a if a.length==1
     return "0x#{a}"
