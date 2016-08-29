@@ -12,7 +12,7 @@
 
   headers = {
     ili_new: [0xFF, 0x00, 0x00, 0x00, 0x03, 0x98, 0x81, 0x03],
-    ili_old: [0xFF, 0x00, 0x00, 0x00, 0x05, 0xFF, 0x05, 0x98, 0x06, 0x04, 0x01]
+    ili_old: [0xFF, 0x00, 0x00, 0x00, 0x05, 0xFF, 0x98, 0x06, 0x04, 0x01]
   };
 
   FoundHeader = (function() {
@@ -27,7 +27,7 @@
     };
 
     FoundHeader.prototype.getEnd = function() {
-      return this.offset + this.hex.length;
+      return this.offset + this.hex.length - (this.hex.length - 8);
     };
 
     return FoundHeader;
@@ -44,7 +44,7 @@
   };
 
   fs.readFile('lk.bin', function(err, file) {
-    var byte, checkHeader, finish, found, foundHeaders, header, i, id, l, ref;
+    var byte, checkHeader, finish, found, foundHeaders, header, hid, i, id, l, ref;
     if (err) {
       throw err;
     }
@@ -84,8 +84,10 @@
     }
     console.log("\nTotal " + foundHeaders.length + " headers found");
     id = 0;
+    hid = 0;
     return foundHeaders.forEach(function(header) {
       var args, data, m, n, o, offset, out, printOffset, processed, read, ref1, ref2, ref3, ref4, skip;
+      hid++;
       out = "";
       console.log("Processing header for " + header.name + " (from 0x" + (header.offset.toString(16)) + " to 0x" + (header.getEnd().toString(16)) + ")\n\n\n\n");
       processed = 0;
@@ -130,7 +132,7 @@
         skip(8 + 64);
         finish = true;
       }
-      return fs.writeFileSync(header.name + '.c', out);
+      return fs.writeFileSync(header.name + '.' + hid + '.c', out);
     });
   });
 

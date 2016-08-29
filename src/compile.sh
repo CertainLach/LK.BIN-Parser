@@ -1,0 +1,1 @@
+coffee -o ./../ parser.coffee

@@ -8,13 +8,15 @@ start=do (new Date).getTime
 headers=
             #  FF   00   00   00   03   98   81   03
     ili_new:[0xFF,0x00,0x00,0x00,0x03,0x98,0x81,0x03]
-            #  FF   00   00   00    05  FF   98   06   04   01
-    ili_old:[0xFF,0x00,0x00,0x00,0x05,0xFF,0x05,0x98,0x06,0x04,0x01]
+            #  FF   00   00   00   05   FF   98   06   04   01
+    ili_old:[0xFF,0x00,0x00,0x00,0x05,0xFF,0x98,0x06,0x04,0x01]
+            #{0xFF,5,{0xFF,0x98,0x06,0x04,0x01}},
+    #ukn_1  :[0xFF,0x00,0x00,0x00,0x05,0xFF,0x98,0x06,0x045]
 
 class FoundHeader 
     constructor: (@name,@offset,@hex)->
     toString: -> return "Header of #{@name} on 0x#{@offset.toString 16}"
-    getEnd: ->@offset+@hex.length
+    getEnd: ->@offset+@hex.length-(@hex.length-8)
     
 toHex=(int)->
     a=int.toString 16
@@ -59,7 +61,9 @@ fs.readFile 'lk.bin', (err,file)->
     console.log "\nTotal #{foundHeaders.length} headers found"
     
     id=0
+    hid=0
     foundHeaders.forEach (header)->
+        hid++;
         out="";
         console.log "Processing header for #{header.name} (from 0x#{header.offset.toString 16} to 0x#{header.getEnd().toString 16})\n\n\n\n"
         processed=0
@@ -103,7 +107,7 @@ fs.readFile 'lk.bin', (err,file)->
             finish=true
             #skip 5
             #skip 66
-        fs.writeFileSync header.name+'.c',out
+        fs.writeFileSync header.name+'.'+hid+'.c',out
             
         
         
