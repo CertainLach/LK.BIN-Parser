@@ -128,7 +128,7 @@
       out += "{" + (toHex(header.hex[0])) + ", " + header.hex[4] + ", {" + (args.join(',')) + "}},\n";
       while (!finish || offset < file.length) {
         data = read(8);
-        if (data[4] === 0) {
+        if ((data[4] === 0) && ((toHex(data[0])) !== '0x29') && ((toHex(data[0])) !== '0x11')) {
           out += "{REGFLAG_END_OF_TABLE, 0x00, {}}\n";
           processEnd = (new Date).getTime();
           console.log("Table " + hid + " for " + header.name + " processed in " + (processEnd - processStart) + " ms");
