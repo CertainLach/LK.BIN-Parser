@@ -102,7 +102,7 @@ fs.readFile 'lk.bin', (err,file)->
         out+= "{#{toHex header.hex[0]}, #{header.hex[4]}, {#{args.join ','}}},\n"
         while !finish||offset<file.length
             data=read 8
-            if data[4]==0 #TODO: Implement a better way to detect end of table
+            if (data[4]==0)&&((toHex data[0])!='0x29')&&((toHex data[0])!='0x11') #TODO: Implement a better way to detect end of table
                 out+="{REGFLAG_END_OF_TABLE, 0x00, {}}\n"
                 processEnd=do (new Date).getTime
                 console.log "Table #{hid} for #{header.name} processed in #{processEnd-processStart} ms"
