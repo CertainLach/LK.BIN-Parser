@@ -70,6 +70,7 @@ fs.readFile 'lk.bin', (err,file)->
         hid++;
         out="";
         console.log "Processing header for #{header.name} (from 0x#{header.offset.toString 16} to 0x#{header.getEnd().toString 16})\n\n\n\n"
+        processStart=(new Date).getTime
         processed=0
         offset=do header.getEnd
         finish=false
@@ -91,13 +92,10 @@ fs.readFile 'lk.bin', (err,file)->
         out+= "{#{toHex header.hex[0]}, #{header.hex[4]}, {#{args.join ','}}},\n"
         while !finish||offset<file.length
             data=read 8
-            #console.log data
-            #if data[0]<id+1&&toHex data[0] != "0xff"
-            #    console.log "Finishing reading table, id(ex)=#{id}, id(fnd)=#{data[0]}"
-            #    finish=true
-            #    break
-            if (toHex data[0])=='0xff' && data[4]==0
+            if data[4]==0 #TODO: Implement a better way to detect end of table
                 out+="{REGFLAG_END_OF_TABLE, 0x00, {}}\n"
+                processEnd=do (new Date).getTime
+                console.log "Table #{hid} for #{header.name} processed in #{processEnd-processStart} ms"
                 finish=true
                 break
             id++

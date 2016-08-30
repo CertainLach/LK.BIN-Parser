@@ -12,7 +12,9 @@
 
   headers = {
     ili_new: [0xFF, 0x00, 0x00, 0x00, 0x03, 0x98, 0x81, 0x03],
-    ili_old: [0xFF, 0x00, 0x00, 0x00, 0x05, 0xFF, 0x98, 0x06, 0x04, 0x01]
+    ili_old: [0xFF, 0x00, 0x00, 0x00, 0x05, 0xFF, 0x98, 0x06, 0x04, 0x01],
+    otm_dfd: [0xFF, 0x00, 0x00, 0x00, 0x03, 0x80, 0x09, 0x01],
+    otm_f: [0xC0, 0x00, 0x00, 0x00, 0x05, 0x00, 0x58, 0x00, 0x14, 0x16]
   };
 
   FoundHeader = (function() {
@@ -36,6 +38,9 @@
 
   toHex = function(int) {
     var a;
+    if (int === void 0) {
+      return void 0;
+    }
     a = int.toString(16);
     if (a.length === 1) {
       a = "0" + a;
@@ -86,10 +91,11 @@
     id = 0;
     hid = 0;
     return foundHeaders.forEach(function(header) {
-      var args, data, m, n, o, offset, out, printOffset, processed, read, ref1, ref2, ref3, ref4, skip;
+      var args, data, m, n, o, offset, out, printOffset, processEnd, processStart, processed, read, ref1, ref2, ref3, ref4, skip;
       hid++;
       out = "";
       console.log("Processing header for " + header.name + " (from 0x" + (header.offset.toString(16)) + " to 0x" + (header.getEnd().toString(16)) + ")\n\n\n\n");
+      processStart = (new Date).getTime;
       processed = 0;
       offset = header.getEnd();
       finish = false;
@@ -117,8 +123,10 @@
       out += "{" + (toHex(header.hex[0])) + ", " + header.hex[4] + ", {" + (args.join(',')) + "}},\n";
       while (!finish || offset < file.length) {
         data = read(8);
-        if ((toHex(data[0])) === '0xff' && data[4] === 0) {
+        if (data[4] === 0) {
           out += "{REGFLAG_END_OF_TABLE, 0x00, {}}\n";
+          processEnd = (new Date).getTime();
+          console.log("Table " + hid + " for " + header.name + " processed in " + (processEnd - processStart) + " ms");
           finish = true;
           break;
         }
