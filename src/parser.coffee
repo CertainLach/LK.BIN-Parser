@@ -104,7 +104,7 @@ fs.readFile 'lk.bin', (err,file)->
             data=read 8
             if data[4]==0 #TODO: Implement a better way to detect end of table
                 out+="{REGFLAG_END_OF_TABLE, 0x00, {}}\n"
-                processEnd=do (new Date).getTime
+                processEnd=(new Date).getTime
                 console.log "Table #{hid} for #{header.name} processed in #{processEnd-processStart} ms"
                 finish=true
                 break
