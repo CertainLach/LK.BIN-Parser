@@ -100,7 +100,7 @@
       hid++;
       out = "";
       console.log("Processing header for " + header.name + " (from 0x" + (header.offset.toString(16)) + " to 0x" + (header.getEnd().toString(16)) + ")\n\n\n\n");
-      processStart = (new Date).getTime;
+      processStart = (new Date).getTime();
       processed = 0;
       offset = header.getEnd();
       finish = false;
