@@ -19,7 +19,8 @@
     otm_9608_a: [0xFF, 0x00, 0x00, 0x00, 0x03, 0x96, 0x08, 0x01],
     hx_8394: [0xB9, 0x00, 0x00, 0x00, 0x03, 0xFF, 0x83, 0x94],
     hx_8392: [0xB9, 0x00, 0x00, 0x00, 0x03, 0xFF, 0x83, 0x92],
-    ili_9881_c: [0xFF, 0x00, 0x00, 0x00, 0x03, 0x98, 0x81, 0x03]
+    ili_9881_c: [0xFF, 0x00, 0x00, 0x00, 0x03, 0x98, 0x81, 0x03],
+    rm_68172: [0xf0, 0x00, 0x00, 0x00, 0x05, 0x55, 0xaa, 0x52, 0x08, 0x02]
   };
 
   FoundHeader = (function() {
@@ -96,56 +97,65 @@
     id = 0;
     hid = 0;
     return foundHeaders.forEach(function(header) {
-      var args, data, m, n, o, offset, out, printOffset, processEnd, processStart, processed, read, ref1, ref2, ref3, ref4, skip;
-      hid++;
-      out = "";
-      console.log("Processing header for " + header.name + " (from 0x" + (header.offset.toString(16)) + " to 0x" + (header.getEnd().toString(16)) + ")\n\n\n\n");
-      processStart = (new Date).getTime();
-      processed = 0;
-      offset = header.getEnd();
-      finish = false;
-      printOffset = function(str) {
-        return console.log("0x" + (offset.toString(16)) + ":  " + str);
-      };
-      skip = function(count) {
-        return offset += count;
-      };
-      read = function(count) {
-        var j, k, m, ref1, result;
-        result = [];
-        k = offset;
-        for (j = m = 0, ref1 = count - 1; 0 <= ref1 ? m <= ref1 : m >= ref1; j = 0 <= ref1 ? ++m : --m) {
-          result.push(file[k + j]);
-        }
-        return result;
-      };
-      skip(64);
-      args = [];
-      for (n = m = ref1 = header.hex[4] + 2, ref2 = header.hex.length - 1; ref1 <= ref2 ? m <= ref2 : m >= ref2; n = ref1 <= ref2 ? ++m : --m) {
-        args.push(header.hex[n]);
-      }
-      args = args.map(toHex);
-      out += "{" + (toHex(header.hex[0])) + ", " + header.hex[4] + ", {" + (args.join(',')) + "}},\n";
-      while (!finish || offset < file.length) {
-        data = read(8);
-        if ((data[4] === 0) && ((toHex(data[0])) !== '0x29') && ((toHex(data[0])) !== '0x11')) {
-          out += "{REGFLAG_END_OF_TABLE, 0x00, {}}\n";
-          processEnd = (new Date).getTime();
-          console.log("Table " + hid + " for " + header.name + " processed in " + (processEnd - processStart) + " ms");
-          finish = true;
-          break;
-        }
-        id++;
+      var args, cmdOffset, cmdOffsetMult, data, m, n, o, offset, out, p, printOffset, processEnd, processStart, processed, read, ref1, ref2, ref3, ref4, results, skip;
+      results = [];
+      for (cmdOffsetMult = m = 1; m <= 4; cmdOffsetMult = ++m) {
+        cmdOffset = 32 * cmdOffsetMult;
+        hid++;
+        out = "";
+        console.log("Processing header for " + header.name + " (from 0x" + (header.offset.toString(16)) + " to 0x" + (header.getEnd().toString(16)) + ") CmdOffset is " + cmdOffset + "\n");
+        processStart = (new Date).getTime();
+        processed = 0;
+        offset = header.getEnd();
+        finish = false;
+        printOffset = function(str) {
+          return console.log("0x" + (offset.toString(16)) + ":  " + str);
+        };
+        skip = function(count) {
+          return offset += count;
+        };
+        read = function(count) {
+          var j, k, o, ref1, result;
+          result = [];
+          k = offset;
+          for (j = o = 0, ref1 = count - 1; 0 <= ref1 ? o <= ref1 : o >= ref1; j = 0 <= ref1 ? ++o : --o) {
+            result.push(file[k + j]);
+          }
+          return result;
+        };
+        skip(cmdOffset);
         args = [];
-        for (n = o = ref3 = offset + 3 + 1 + 1, ref4 = offset + 3 + data[4] + 1; ref3 <= ref4 ? o <= ref4 : o >= ref4; n = ref3 <= ref4 ? ++o : --o) {
-          args.push(file[n]);
+        for (n = o = ref1 = header.hex[4] + 2, ref2 = header.hex.length - 1; ref1 <= ref2 ? o <= ref2 : o >= ref2; n = ref1 <= ref2 ? ++o : --o) {
+          args.push(header.hex[n]);
         }
         args = args.map(toHex);
-        out += "{" + (toHex(data[0])) + ", " + data[4] + ", {" + (args.join(',')) + "}},\n";
-        skip(8 + 64);
-        finish = true;
+        out += "{" + (toHex(header.hex[0])) + ", " + header.hex[4] + ", {" + (args.join(',')) + "}},\n";
+        while (!finish || offset < file.length) {
+          data = read(8);
+          if ((data[4] === 0) && ((toHex(data[0])) !== '0x29') && ((toHex(data[0])) !== '0x11')) {
+            out += "{REGFLAG_END_OF_TABLE, 0x00, {}}\n";
+            processEnd = (new Date).getTime();
+            console.log("Table " + hid + " for " + header.name + " processed in " + (processEnd - processStart) + " ms");
+            finish = true;
+            break;
+          }
+          id++;
+          args = [];
+          for (n = p = ref3 = offset + 3 + 1 + 1, ref4 = offset + 3 + data[4] + 1; ref3 <= ref4 ? p <= ref4 : p >= ref4; n = ref3 <= ref4 ? ++p : --p) {
+            args.push(file[n]);
+          }
+          args = args.map(toHex);
+          out += "{" + (toHex(data[0])) + ", " + data[4] + ", {" + (args.join(',')) + "}},\n";
+          skip(8 + cmdOffset);
+          finish = true;
+        }
+        if ((out.split('\n')).length < 4) {
+          results.push(console.log('Table is too short, skipping it'));
+        } else {
+          results.push(fs.writeFileSync(header.name + '.' + hid + '.' + cmdOffset + '.c', out));
+        }
       }
-      return fs.writeFileSync(header.name + '.' + hid + '.c', out);
+      return results;
     });
   });
 
