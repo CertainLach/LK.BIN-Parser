@@ -1,4 +1,5 @@
-#LK.bin parser
+# LK.bin parser
 
-##Usage:
- - node parser.js
+## Usage:
+ - Copy your lk.bin to this folder
+ - node `parser.js`
